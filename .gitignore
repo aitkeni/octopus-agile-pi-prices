@@ -1,0 +1,18 @@
+/.idea/sqldialects.xml
+# Default ignored files
+.idea/shelf/
+.idea/workspace.xml
+# Datasource local storage ignored files
+.idea/dataSources/
+.idea/dataSources.local.xml
+# Editor-based HTTP Client requests
+.idea/httpRequests/
+.idea/checkstyle-idea.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/octopus-agile-pi-prices.iml
+.idea/runConfigurations.xml
+.idea/vcs.xml
+.idea/dataSources.xml
+.idea/inspectionProfiles/
+/agileprices.sqlite
