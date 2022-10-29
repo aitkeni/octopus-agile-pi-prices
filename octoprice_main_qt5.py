@@ -171,12 +171,13 @@ for offset in range(0, 48):  # 24h = 48 segments
 
         textlabel1 = QLabel(widget)
         textlabel2 = QLabel(widget)
-        bigfont = QFont("Helvetica", 288, QFont.Bold)
+        bigfont = QFont("Helvetica", 200, QFont.Bold)
         font = QFont("Helvetica", 72, QFont.Bold)
         textlabel1.setStyleSheet("color : white;")
         textlabel1.setFont(font)
         textlabel2.setStyleSheet("color : white;")
         textlabel2.setFont(bigfont)
+        #current_price = 0
         message = "{0:.1f}".format(current_price) + "p"
 
         if current_price > 5:
