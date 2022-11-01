@@ -5,17 +5,75 @@
     <meta http-equiv="refresh" content="60">
     <title>Octopus Price Notifier</title>
     <style>
-        h1 {text-align: center;}
-        p {text-align: center;}
-        div {text-align: center;}
+        h1 ,h2, p, div {text-align: center; font-family: "Helvetica Neue" ; color: white }
+        body {text-align: center; font-family: "Helvetica Neue" }
+        .full { width: 100% }
+        .half { width: 50% }
+        table, th, td {
+            border: medium solid white;
+            border-collapse: collapse;
+            padding: 10px
+        }
+        .center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        text {
     </style>
+    <script>
+        function requestFullScreen(element) {
+            // Supports most browsers and their versions.
+            var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
+
+            if (requestMethod) { // Native full screen.
+                requestMethod.call(element);
+            } else if (typeof window.ActiveXObject !== "undefined") { // Older IE.
+                var wscript = new ActiveXObject("WScript.Shell");
+                if (wscript !== null) {
+                    wscript.SendKeys("{F11}");
+                }
+            }
+        }
+
+        var elem = document.body; // Make the body go full screen.
+        requestFullScreen(elem);
+    </script>
 </head>
 <body style="$STYLESHEET">
-Time is $NOW
-
-<h1> Current Price </h1>
-<h1> $PRICE </h1>
+<h1>
+    <table class="center" class="full">
+        <tr>
+            <th>Time now</th>
+            <th>Price now</th>
+        </tr>
+        <tr>
+            <td>$NOW</td>
+            <td>$NEXT_PRICE</td>
+        </tr>
+    </table>
+</h1>
 <h1> $NUTS </h1>
 
+<h2>Coming up:
+    </p>
+    <table class="center" class="half">
+        <tr>
+            <th>Time</th>
+            <th>Price</th>
+        </tr>
+        <tr>
+            <td>$NEXT_TIME</td>
+            <td style="$STYLE_NEXT>$NEXT_PRICE</td>
+    </tr>
+    <tr>
+        <td>$NEXT_NEXT_TIME</td>
+        <td style="$STYLE_NEXT_NEXT">$NEXT_NEXT_PRICE</td>
+        </tr>
+        <tr>
+            <td>$NEXT_NEXT_NEXT_TIME</td>
+            <td style="$STYLE_NEXT_NEXT_NEXT">$NEXT_NEXT_NEXT_PRICE</td>
+        </tr>
+    </table>
+</h2>
 </body>
 </html>
