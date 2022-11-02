@@ -189,7 +189,7 @@ def fill_in(the_template_obj):
     the_now_local = the_now.astimezone(pytz.timezone('Europe/London'))
     substitutor.set("$NOW", the_now_local.time().strftime('%l:%M%p'))
 
-    if current_price > 5:
+    if current_price > 10:
         substitutor.setText("$NUTS", "")
         substitutor.setStyleSheet("background-color:red;")
     else:
@@ -200,27 +200,27 @@ def fill_in(the_template_obj):
     substitutor.set("$NEXT_PRICE", "{0:.1f}".format(prices[1]) + "p")
     substitutor.set("$NEXT_TIME", get_segment_time(the_now, 30))
 
-    if prices[1] > 14.8:
-        substitutor.set("$STYLE_NEXT", "background-color:red;")
+    if prices[1] > 10:
+        substitutor.set("$STYLE_NEXT1", "background-color:red;")
     else:
-        substitutor.set("$STYLE_NEXT", "background-color:green;")
+        substitutor.set("$STYLE_NEXT1", "background-color:green;")
 
     # NEXT
     substitutor.set("$NEXT_NEXT_PRICE", "{0:.1f}".format(prices[2]) + "p")
     substitutor.set("$NEXT_NEXT_TIME", get_segment_time(the_now, 60))
-    if prices[2] > 14.8:
-        substitutor.set("$STYLE_NEXT_NEXT", "background-color:red;")
+    if prices[2] > 10:
+        substitutor.set("$STYLE_NEXT2", "background-color:red;")
     else:
-        substitutor.set("$STYLE_NEXT_NEXT", "background-color:green;")
+        substitutor.set("$STYLE_NEXT2", "background-color:green;")
 
     # NEXT
 
     substitutor.set("$NEXT_NEXT_NEXT_PRICE", "{0:.1f}".format(prices[3]) + "p")
     substitutor.set("$NEXT_NEXT_NEXT_TIME", get_segment_time(the_now, 90))
-    if prices[3] > 14.8:
-        substitutor.set("$STYLE_NEXT_NEXT_NEXT", "background-color:red;")
+    if prices[3] > 10:
+        substitutor.set("$STYLE_NEXT3", "background-color:red;")
     else:
-        substitutor.set("$STYLE_NEXT_NEXT_NEXT", "background-color:green;")
+        substitutor.set("$STYLE_NEXT3", "background-color:green;")
 
     # pixels_per_h = 2.3  # how many pixels 1p is worth
     # pixels_per_w = 3.5  # how many pixels 1/2 hour is worth
