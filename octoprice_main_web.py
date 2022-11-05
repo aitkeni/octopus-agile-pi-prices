@@ -19,13 +19,16 @@ import pytz
 import time
 from http.server import HTTPServer, BaseHTTPRequestHandler  # Python’s built-in library
 
+import grapher
+
 MAX_RETRIES = 15  # give up once we've tried this many times to get the prices from the API
 hostName = os.getenv('HOST', 'localhost')
 serverPort = 8080  # You can choose any available port; by default, it is 8000
 the_template_obj = {}
 refresh_db = False
 
-def getPrices():
+
+def get_prices():
     try:
         # connect to the database in rw mode so we can catch the error if it doesn't exist
         DB_URI = 'file:{}?mode=rw'.format(pathname2url('agileprices.sqlite'))
@@ -122,10 +125,11 @@ def getPrices():
     # get price
     nextp1_price = row[5]  # literally this is peak tuple. DONT ADD ANY EXTRA FIELDS TO THAT TABLE
 
-    nextp2_price = get_price_at_time(cur,90)
+    nextp2_price = get_price_at_time(cur, 90)
 
     # attempt to make an list of the next 42 hours of values
     prices = []
+    times = []
     for offset in range(0, 48):  # 24h = 48 segments
         min_offset = 30 * offset
         the_now = datetime.now(timezone.utc)
@@ -144,11 +148,13 @@ def getPrices():
         # get price
         row = cur.fetchone()
         if row is None:
-            prices.append(999)  # we don't have that price yet!
+            break
+           # prices.append(999)  # we don't have that price yet!
         else:
             prices.append(row[5])
+        times.append(datetime.strptime(row[6], '%Y-%m-%d %H:%M:%S').strftime('%H:%M'))
+    return prices, times
 
-    return prices
 
 # not required
 def get_price_at_time(cur, offset):
@@ -180,8 +186,8 @@ def get_price_at_time(cur, offset):
 def fill_in(the_template_obj):
     substitutor = Substitutor(the_template_obj)
 
-    prices = getPrices()
-    current_price=prices[0]
+    prices, times = get_prices()
+    current_price = prices[0]
     substitutor.set("$PRICE", "{0:.1f}".format(current_price) + "p")
 
     # find current time and convert to year month day etc
@@ -222,67 +228,8 @@ def fill_in(the_template_obj):
     else:
         substitutor.set("$STYLE_NEXT3", "background-color:green;")
 
-    # pixels_per_h = 2.3  # how many pixels 1p is worth
-    # pixels_per_w = 3.5  # how many pixels 1/2 hour is worth
-    # chart_base_loc = 121  # location of the bottom of the chart on screen in pixels
-    # #chart_base_loc = 85  # location of the bottom of the chart on screen in pixels
-    # number_of_vals_to_display = 48 # 36 half hours = 18 hours
-    #
-    # # plot the graph
-    # #lowest_price_next_24h = min(i for i in prices if i > 0)
-    # lowest_price_next_24h = min(i for i in prices)
-    # if (lowest_price_next_24h < 0):
-    #     chart_base_loc = 104 + lowest_price_next_24h*pixels_per_h - 2 # if we have any negative prices,
-    #     shift the base of the graph up!
-    #
-    # print("lowest price Position:", prices.index(lowest_price_next_24h))
-    # print("low Value:", lowest_price_next_24h)
-    #
-    # # go through each hour and get the value
-    #
-    # for i in range(0,number_of_vals_to_display):
-    #     if prices[i] < 999:
-    #         scaled_price = prices[i] * pixels_per_h # we're scaling it by the value above
-    #
-    #         if prices[i] <= (lowest_price_next_24h + 1):   # if within 1p of the lowest price, display in black
-    #             ink_color = inky_display.BLACK
-    #         else:
-    #             ink_color = inky_display.RED
-    #
-    #         # takes a bit of thought this next bit, draw a rectangle from say x =  2i to 2(i-1) for each plot
-    #         value
-    #         # pixels_per_w defines the horizontal scaling factor (2 seems to work)
-    #         draw.rectangle((pixels_per_w*i,chart_base_loc,((pixels_per_w*i)-pixels_per_w),
-    #         (chart_base_loc-scaled_price)),ink_color)
-    #
-    # #draw minimum value on chart  <- this doesn't seem to work yet
-    # # font = ImageFont.truetype(FredokaOne, 15)
-    # # msg = "{0:.1f}".format(lowest_price_next_24h) + "p"
-    # # draw.text((4*(minterval-1),110),msg, inky_display.BLACK, font)
-    #
-    # # draw the bottom right min price and how many hours that is away
-    # font = ImageFont.truetype(FredokaOne, 16)
-    # msg = "min:"+"{0:.1f}".format(lowest_price_next_24h) + "p"
-    # draw.text((right_column,69), msg, inky_display.BLACK, font)
-    # # we know how many half hours to min price, now figure it out in hours.
-    # minterval = (round(prices.index(lowest_price_next_24h)/2))
-    # print ("minterval:"+str(minterval))
-    # msg = "in:"+str(minterval)+"hrs"
-    # draw.text((right_column,85), msg, inky_display.BLACK, font)
-    #
-    # # and convert that to an actual time
-    # # note that this next time will not give you an exact half hour if you don't run this at an exact half
-    # hour eg cron
-    # # because it's literally just adding n * 30 mins!
-    # # could in future add some code to round to 30 mins increments but it works for now.
-    #
-    # min_offset = prices.index(lowest_price_next_24h) * 30
-    # time_of_cheapest = the_now_local + timedelta(minutes=min_offset)
-    # print("cheapest at " + str(time_of_cheapest))
-    # print("which is: "+ str(time_of_cheapest.time())[0:5])
-    # time_of_cheapest_formatted = "at " + (str(time_of_cheapest.time())[0:5])
-    # font = ImageFont.truetype(FredokaOne, 16)
-    # draw.text((right_column,101), time_of_cheapest_formatted, inky_display.BLACK, font)
+    plot_graph(prices, times)
+
     return substitutor.asHtml()
 
 
@@ -314,19 +261,31 @@ class Substitutor:
         return self.file_to_fill
 
 
+def plot_graph(prices, times):
+    grapher.plot(prices, times)
+
+
 class MyServer(BaseHTTPRequestHandler):
 
     def do_GET(self):  # the do_GET method is inherited from BaseHTTPRequestHandler
 
-        self.refresh_database()
-        template = open("template.html", "r", 1)
-        the_template_obj = fill_in(template.readlines())
+        if self.path == "/price_over_time.png":
+            png = open("." + self.path, "rb", 1)
+            self.send_response(200)
+            self.send_header("Content-type", "image/png")
+            self.end_headers()
+            self.wfile.write(png.read())
+            png.close()
+        else:
+            self.refresh_database()
+            template = open("template.html", "r", 1)
+            the_template_obj = fill_in(template.readlines())
 
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        for line in the_template_obj:
-            self.wfile.write(bytes(line, "utf-8"))
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            for line in the_template_obj:
+                self.wfile.write(bytes(line, "utf-8"))
 
     def refresh_database(self):
         global refresh_db
@@ -432,7 +391,8 @@ def insert_data(cursor, data: dict):
               ' already or octopus are late with their update.')
 
 
-def insert_record(cursor, year: int, month: int, day: int, hour: int, segment: int, price: float, valid_from: str) -> bool:
+def insert_record(cursor, year: int, month: int, day: int, hour: int, segment: int, price: float,
+                  valid_from: str) -> bool:
     """Assuming we still have a cursor, take a tuple and stick it into the database.
        Return False if it was a duplicate record (not inserted) and True if a record
        was successfully inserted."""

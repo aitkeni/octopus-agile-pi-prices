@@ -1,3 +1,4 @@
+*.png
 /.idea/sqldialects.xml
 # Default ignored files
 .idea/shelf/
