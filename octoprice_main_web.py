@@ -270,7 +270,7 @@ class MyServer(BaseHTTPRequestHandler):
     def do_GET(self):  # the do_GET method is inherited from BaseHTTPRequestHandler
 
         if self.path == "/price_over_time.png":
-            png = open("." + self.path, "rb", 1)
+            png = open("." + self.path, "rb")
             self.send_response(200)
             self.send_header("Content-type", "image/png")
             self.end_headers()
