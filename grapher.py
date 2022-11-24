@@ -39,7 +39,7 @@ else:
 
 import numpy as np
 
-@profile
+#@profile
 def plot(prices, times):
     print("Generating graph for {}".format("price_over_time"))
     target_file = os.path.join(".", "price_over_time.png")
