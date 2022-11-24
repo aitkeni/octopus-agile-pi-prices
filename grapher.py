@@ -13,7 +13,7 @@ matplotlib.use('Agg')
 
 from ctypes import cdll, CDLL
 
-from memory_profiler import profile
+#from memory_profiler import profile
 
 try:
     cdll.LoadLibrary("libc.so.6")

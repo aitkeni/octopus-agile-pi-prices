@@ -20,7 +20,7 @@ import pytz
 import time
 from http.server import HTTPServer, BaseHTTPRequestHandler  # Python’s built-in library
 
-from memory_profiler import profile
+#from memory_profiler import profile
 
 import grapher
 
