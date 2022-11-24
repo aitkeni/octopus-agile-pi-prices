@@ -1,12 +1,13 @@
 # this is the script you run every half hour by cron, best done about 20-30 seconds after the half hour to ensure
 # that the right datetime is read in.
 # For example --->   */30 * * * * sleep 20; /usr/bin/python3 octoprice_main_inky.py > /home/pi/cron.log
-
+import gc
 # NOTE - USAGE
 # This script *won't work* unless you have run (python3 store_prices.py) at least once in the last 'n' hours
 # (n is variable, it updates 4pm every day)
 # You also need to update store_prices.py to include your own DNO region.
 import os
+import sys
 from reprlib import Repr
 from datetime import datetime, timezone, timedelta
 from urllib.request import pathname2url
@@ -18,6 +19,8 @@ import sqlite3
 import pytz
 import time
 from http.server import HTTPServer, BaseHTTPRequestHandler  # Python’s built-in library
+
+from memory_profiler import profile
 
 import grapher
 
@@ -153,6 +156,9 @@ def get_prices():
         else:
             prices.append(row[5])
         times.append(datetime.strptime(row[6], '%Y-%m-%d %H:%M:%S').strftime('%H:%M'))
+    # close database
+    cur.close()
+    conn.close()
     return prices, times
 
 
@@ -267,6 +273,7 @@ def plot_graph(prices, times):
 
 class MyServer(BaseHTTPRequestHandler):
 
+    # @profile
     def do_GET(self):  # the do_GET method is inherited from BaseHTTPRequestHandler
 
         if self.path == "/price_over_time.png":
@@ -275,17 +282,37 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_header("Content-type", "image/png")
             self.end_headers()
             self.wfile.write(png.read())
+            self.wfile.flush()
             png.close()
+            del png
         else:
             self.refresh_database()
             template = open("template.html", "r", 1)
             the_template_obj = fill_in(template.readlines())
-
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
             for line in the_template_obj:
                 self.wfile.write(bytes(line, "utf-8"))
+            del line
+            self.wfile.flush()
+            #self.finish()
+            self.connection.close()
+            template.close()
+            del template
+            gc.collect()
+            print("Ref count before is : " + str(sys.getrefcount(the_template_obj) ) )
+            print("Referers: " + str(gc.get_referrers(the_template_obj)))
+
+            del the_template_obj
+
+
+            # print("Ref count after is : " + str(sys.getrefcount(the_template_obj) ) )
+            # print("Referers: " + str(gc.get_referrers(the_template_obj)))
+
+
+
+
 
     def refresh_database(self):
         global refresh_db

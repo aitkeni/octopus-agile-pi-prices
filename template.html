@@ -41,35 +41,41 @@
 </head>
 <body style="$STYLESHEET">
 <h1>
-    <table class="center" class="full">
+    <table class="center">
         <tr>
-            <th>Time now</th>
-            <th>Price now</th>
-        </tr>
-        <tr>
-            <td>$NOW</td>
-            <td>$PRICE</td>
+            <td> <table class="center" class="full">
+                <tr>
+                    <th>Time now</th>
+                    <th>Price now</th>
+                </tr>
+                <tr>
+                    <td>$NOW</td>
+                    <td>$PRICE</td>
+                </tr>
+            </table>
+            </td>
+            <td>Coming up:</td>
+            <td><table class="center" class="half">
+                <tr>
+                    <th>Time</th>
+                    <td>$NEXT_TIME</td>
+                    <td>$NEXT_NEXT_TIME</td>
+                    <td>$NEXT_NEXT_NEXT_TIME</td>
+                </tr>
+                <tr>
+                    <th>Price</th>
+                    <td style="$STYLE_NEXT1">$NEXT_PRICE</td>
+                    <td style="$STYLE_NEXT2">$NEXT_NEXT_PRICE</td>
+                    <td style="$STYLE_NEXT3">$NEXT_NEXT_NEXT_PRICE</td>
+                </tr>
+            </table></td>
         </tr>
     </table>
 </h1>
 <h1> $NUTS </h1>
 
-<h2>Coming up:</h2>
 <h1>
-    <table class="center" class="half">
-        <tr>
-            <th>Time</th>
-            <td>$NEXT_TIME</td>
-            <td>$NEXT_NEXT_TIME</td>
-            <td>$NEXT_NEXT_NEXT_TIME</td>
-        </tr>
-        <tr>
-            <th>Price</th>
-            <td style="$STYLE_NEXT1">$NEXT_PRICE</td>
-            <td style="$STYLE_NEXT2">$NEXT_NEXT_PRICE</td>
-            <td style="$STYLE_NEXT3">$NEXT_NEXT_NEXT_PRICE</td>
-        </tr>
-    </table>
+
     <h2>Prices for the rest of the day</h2>
     <img src="price_over_time.png" alt="graph">
 </h1>
